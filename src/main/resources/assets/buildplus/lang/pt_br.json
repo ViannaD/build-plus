@@ -1,0 +1,23 @@
+{
+	"block.buildplus.building_block": "Building Block",
+	"itemGroup.buildplus": "Build+",
+	"buildplus.gui.title": "Modo Construção",
+	"buildplus.gui.area_size": "Tamanho da área",
+	"buildplus.gui.players": "Jogadores Permitidos",
+	"buildplus.gui.add_player": "Adicionar jogador",
+	"buildplus.gui.start": "Iniciar",
+	"buildplus.gui.finish": "Finalizar",
+	"buildplus.msg.started": "§aModo Construção iniciado. Área: %s blocos.",
+	"buildplus.msg.finished": "§cModo construção encerrado.",
+	"buildplus.msg.left_area": "§cVocê saiu da área de construção.",
+	"buildplus.msg.return_warning": "§eRetorne em até 5 segundos ou o modo construção será encerrado.",
+	"buildplus.msg.area_recovered": "§aÁrea recuperada.",
+	"buildplus.msg.already_in_session": "§cVocê já está em outro Modo Construção ativo.",
+	"buildplus.msg.not_owner": "§cApenas o dono pode fazer isso.",
+	"buildplus.msg.cannot_break": "§cVocê não pode quebrar o Building Block durante a construção.",
+	"buildplus.summary.title": "§6Modo Construção Finalizado",
+	"buildplus.summary.time": "§7Tempo: §f%s",
+	"buildplus.summary.players": "§7Jogadores: §f%s",
+	"buildplus.summary.area": "§7Área: §f%s blocos",
+	"buildplus.summary.blocks_placed": "§7Blocos colocados: §f%s"
+}

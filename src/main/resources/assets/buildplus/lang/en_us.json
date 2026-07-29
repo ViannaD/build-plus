@@ -1,0 +1,23 @@
+{
+	"block.buildplus.building_block": "Building Block",
+	"itemGroup.buildplus": "Build+",
+	"buildplus.gui.title": "Build Mode",
+	"buildplus.gui.area_size": "Area size",
+	"buildplus.gui.players": "Allowed Players",
+	"buildplus.gui.add_player": "Add player",
+	"buildplus.gui.start": "Start",
+	"buildplus.gui.finish": "Finish",
+	"buildplus.msg.started": "§aBuild Mode started. Area: %s blocks.",
+	"buildplus.msg.finished": "§cBuild mode ended.",
+	"buildplus.msg.left_area": "§cYou left the building area.",
+	"buildplus.msg.return_warning": "§eReturn within 5 seconds or build mode will end.",
+	"buildplus.msg.area_recovered": "§aArea recovered.",
+	"buildplus.msg.already_in_session": "§cYou're already in another active Build Mode.",
+	"buildplus.msg.not_owner": "§cOnly the owner can do that.",
+	"buildplus.msg.cannot_break": "§cYou can't break the Building Block during construction.",
+	"buildplus.summary.title": "§6Build Mode Finished",
+	"buildplus.summary.time": "§7Time: §f%s",
+	"buildplus.summary.players": "§7Players: §f%s",
+	"buildplus.summary.area": "§7Area: §f%s blocks",
+	"buildplus.summary.blocks_placed": "§7Blocks placed: §f%s"
+}

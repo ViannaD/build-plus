@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "buildplus",
+	"version": "${version}",
+	"name": "Build+",
+	"description": "Voo temporário e limitado a uma área para facilitar construções grandes no Survival, sem virar Criativo permanente.",
+	"authors": [
+		"Você"
+	],
+	"contact": {
+		"homepage": "https://github.com/"
+	},
+	"license": "MIT",
+	"icon": "assets/buildplus/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.buildplus.BuildPlusMod"
+		],
+		"client": [
+			"com.buildplus.client.BuildPlusClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
