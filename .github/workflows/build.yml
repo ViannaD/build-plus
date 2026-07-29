@@ -1,0 +1,76 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*.*.*" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # necessário só pro job criar o Release quando roda em uma tag
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # Não commitamos o gradlew/wrapper no repo, então usamos o Gradle
+      # provisionado pela própria action (com cache de dependências do Loom).
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.8
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+      - name: Build with Gradle
+        run: gradle build --stacktrace
+
+      - name: Locate built jar
+        id: jar
+        run: |
+          JAR_PATH=$(find build/libs -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" | head -n 1)
+          echo "path=$JAR_PATH" >> "$GITHUB_OUTPUT"
+          echo "Built: $JAR_PATH"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-plus
+          path: |
+            build/libs/*.jar
+          if-no-files-found: error
+
+      - name: Run tests
+        if: always()
+        run: gradle test --stacktrace
+        continue-on-error: true
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/reports/tests/
+          if-no-files-found: ignore
+
+      # Ao empurrar uma tag (ex: v1.0.0), cria automaticamente um Release no
+      # GitHub já com o .jar anexado.
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.jar.outputs.path }}
+          generate_release_notes: true
