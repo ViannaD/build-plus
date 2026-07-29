@@ -1,15 +1,18 @@
 package com.buildplus.client.render;
 
 import com.buildplus.client.gui.BuildingBlockScreen;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 /**
@@ -17,11 +20,10 @@ import org.joml.Matrix4f;
  * Building Block está aberta, com cor mudando conforme a distância da borda:
  * azul (longe), amarelo (perto) e vermelho (fora/na borda).
  *
- * Usa a API de alto nível do Minecraft (RenderLayer/VertexConsumer) em vez de
- * chamar com.mojang.blaze3d.vertex diretamente - é a forma estável e
- * recomendada de desenhar geometria custom a partir de eventos do Fabric API,
- * e evita quebrar por causa de detalhes internos do renderer que mudam entre
- * builds da Fabric API/Minecraft.
+ * Desenha com um Tessellator/BufferBuilder próprio e teste de profundidade
+ * desligado, em vez de usar o VertexConsumerProvider.Immediate compartilhado
+ * com entidades - assim o contorno não depende do momento em que esse buffer
+ * compartilhado é esvaziado no frame e fica visível mesmo atrás de blocos.
  */
 public final class WireframeRenderer {
 
@@ -70,29 +72,41 @@ public final class WireframeRenderer {
 
 		matrices.push();
 		matrices.translate(-camera.x, -camera.y, -camera.z);
-
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		Matrix3f normalMatrix = matrices.peek().getNormalMatrix();
 
-		// Provider "imediato" padrão do cliente: desenhamos e fazemos flush na hora,
-		// já que estamos fora do ciclo normal de batching de entidades/blocos.
-		VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
-		VertexConsumer buffer = consumers.getBuffer(RenderLayer.getLines());
+		// Desenhamos com um Tessellator próprio (em vez de pegar emprestado o
+		// VertexConsumerProvider.Immediate compartilhado com entidades/blocos).
+		// Isso evita depender de quando esse buffer compartilhado é "flushado"
+		// no frame e é o motivo pelo qual o holograma podia simplesmente não
+		// aparecer antes. Também desligamos o teste de profundidade de propósito,
+		// para o contorno da área ficar visível mesmo atrás de terreno/blocos -
+		// como uma seleção do WorldEdit.
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.disableDepthTest();
+		RenderSystem.lineWidth(2.5f);
 
-		drawBoxEdges(buffer, matrix, normalMatrix, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, 0.9f);
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder buffer = tessellator.getBuffer();
+		buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
-		consumers.draw(RenderLayer.getLines());
+		drawBoxEdges(buffer, matrix, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, 0.9f);
+
+		BufferRenderer.drawWithGlobalProgram(buffer.end());
+
+		RenderSystem.lineWidth(1.0f);
+		RenderSystem.enableDepthTest();
+		RenderSystem.disableBlend();
 
 		matrices.pop();
 	}
 
-	private static void drawBoxEdges(VertexConsumer buffer, Matrix4f matrix, Matrix3f normalMatrix,
+	private static void drawBoxEdges(BufferBuilder buffer, Matrix4f matrix,
 									  double minX, double minY, double minZ,
 									  double maxX, double maxY, double maxZ,
 									  float r, float g, float b, float a) {
-		// 12 arestas de um paralelepípedo. O "normal" de cada aresta é só a
-		// direção da própria linha - RenderLayer.getLines() exige um normal no
-		// formato de vértice, mas ele não afeta a cor (sem iluminação nas linhas).
+		// 12 arestas de um paralelepípedo.
 		double[][] edges = {
 				{minX, minY, minZ, maxX, minY, minZ}, {maxX, minY, minZ, maxX, minY, maxZ},
 				{maxX, minY, maxZ, minX, minY, maxZ}, {minX, minY, maxZ, minX, minY, minZ},
@@ -102,17 +116,8 @@ public final class WireframeRenderer {
 				{maxX, minY, maxZ, maxX, maxY, maxZ}, {minX, minY, maxZ, minX, maxY, maxZ}
 		};
 		for (double[] e : edges) {
-			float nx = (float) (e[3] - e[0]);
-			float ny = (float) (e[4] - e[1]);
-			float nz = (float) (e[5] - e[2]);
-			float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
-			if (len > 0) {
-				nx /= len; ny /= len; nz /= len;
-			}
-			buffer.vertex(matrix, (float) e[0], (float) e[1], (float) e[2])
-					.color(r, g, b, a).normal(normalMatrix, nx, ny, nz).next();
-			buffer.vertex(matrix, (float) e[3], (float) e[4], (float) e[5])
-					.color(r, g, b, a).normal(normalMatrix, nx, ny, nz).next();
+			buffer.vertex(matrix, (float) e[0], (float) e[1], (float) e[2]).color(r, g, b, a).next();
+			buffer.vertex(matrix, (float) e[3], (float) e[4], (float) e[5]).color(r, g, b, a).next();
 		}
 	}
 }

@@ -5,6 +5,8 @@
 	"buildplus.gui.area_size": "Tamanho da área",
 	"buildplus.gui.players": "Jogadores Permitidos",
 	"buildplus.gui.add_player": "Adicionar jogador",
+	"buildplus.gui.area_label": "Área: %s x %s x %s",
+	"buildplus.gui.owner_tag": "(Proprietário)",
 	"buildplus.gui.start": "Iniciar",
 	"buildplus.gui.finish": "Finalizar",
 	"buildplus.msg.started": "§aModo Construção iniciado. Área: %s blocos.",
