@@ -94,10 +94,11 @@ antes do primeiro build.
   retorno ao cair) **não foram implementadas** nesta primeira versão — o
   código já está organizado (pacotes `client.render`, `session`) para você
   plugar cada uma incrementalmente.
-- **Verifique as assinaturas exatas da Fabric Rendering API** em
-  `WireframeRenderer` (`WorldRenderContext`, `MatrixStack`) contra a versão
-  exata da Fabric API que você fixar no `gradle.properties` — pequenas
-  mudanças de assinatura acontecem entre builds da Fabric API 1.20.1.
+- **Wireframe**: usa `RenderLayer.getLines()` + `VertexConsumer` (API estável
+  do Minecraft) em vez de mexer direto em `com.mojang.blaze3d.vertex` — essa
+  segunda abordagem chegou a ser usada numa versão anterior e **quebrou a
+  build no CI** (`package com.mojang.blaze3d.vertex does not exist`), então
+  foi trocada por esta.
 
 ## Estrutura
 
