@@ -81,7 +81,7 @@ public final class BuildSessionManager {
 		MinecraftServer server = world.getServer();
 		for (UUID allowed : session.allowedPlayers) {
 			ServerPlayerEntity p = server.getPlayerManager().getPlayer(allowed);
-			if (p != null && p.world == world && !isPlayerInAnySession(allowed)) {
+			if (p != null && p.getWorld() == world && !isPlayerInAnySession(allowed)) {
 				addParticipant(p, session);
 			}
 		}
@@ -169,7 +169,7 @@ public final class BuildSessionManager {
 			revokeFlight(player);
 			if (!silent) {
 				player.sendMessage(Text.translatable("buildplus.msg.finished"), false);
-				player.playSoundToPlayer(SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 0.6f, 1f);
+				player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 0.6f, 1f);
 			}
 		}
 	}
@@ -236,7 +236,7 @@ public final class BuildSessionManager {
 			if (player == null) continue; // desconectou; mantemos a sessão dele até voltar
 
 			ServerWorld sessionWorld = worldForSession(session);
-			boolean inBounds = sessionWorld != null && player.world == sessionWorld
+			boolean inBounds = sessionWorld != null && player.getWorld() == sessionWorld
 					&& session.getBounds().contains(player.getX(), player.getY(), player.getZ());
 
 			if (inBounds) {
@@ -267,9 +267,9 @@ public final class BuildSessionManager {
 		if (player.isSleeping()) {
 			player.wakeUp();
 		}
-		if (player.isGliding()) {
+		if (player.isFallFlying()) {
 			player.setNoGravity(false);
-			player.stopGliding();
+			player.stopFallFlying();
 		}
 	}
 

@@ -108,8 +108,8 @@ public class BuildingBlockEntity extends BlockEntity {
 		areaSize = nbt.contains("AreaSize") ? nbt.getInt("AreaSize") : DEFAULT_SIZE;
 		active = nbt.getBoolean("Active");
 		allowedPlayers.clear();
-		if (nbt.contains("AllowedPlayers", NbtElement.LIST_TYPE.byteValue())) {
-			NbtList list = nbt.getList("AllowedPlayers", NbtElement.STRING_TYPE.byteValue());
+		if (nbt.contains("AllowedPlayers", NbtElement.LIST_TYPE)) {
+			NbtList list = nbt.getList("AllowedPlayers", NbtElement.STRING_TYPE);
 			for (int i = 0; i < list.size(); i++) {
 				try {
 					allowedPlayers.add(UUID.fromString(list.getString(i)));
